@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>You Died v6.2 — Hell Mirror #666</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --blood: #8b0000;
+      --dark-blood: #300000;
+      --fire: #ff0000;
+      --glow: #ff6600;
+      --shadow: #330000;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#000;
+      color:#ff1a1a;
+      font-family:'Share Tech Mono', monospace;
+      min-height:100vh;
+      overflow-x:hidden;
+      position:relative;
+      animation:pulse-bg 16s infinite alternate;
+    }
+
+    @keyframes pulse-bg {
+      0% { background:#000; }
+      100% { background:#0c0000; }
+    }
+
+    /* Падаюча кров */
+    .blood {
+      position:absolute;
+      width:3px; height:20px;
+      background:linear-gradient(var(--blood), var(--dark-blood));
+      border-radius:50% 50% 0 0;
+      animation:fall 6s linear infinite;
+      opacity:0.6;
+      z-index:1;
+    }
+
+    @keyframes fall {
+      to { transform:translateY(120vh) rotate(720deg); }
+    }
+
+    /* Плаваючі черепи */
+    .skull {
+      position:absolute;
+      font-size:2.8rem;
+      color:#44000055;
+      pointer-events:none;
+      z-index:1;
+      animation:float 30s linear infinite, pulse-skull 8s infinite alternate;
+    }
+
+    @keyframes float {
+      to { transform:translate(140vw, 140vh) rotate(720deg); }
+    }
+
+    @keyframes pulse-skull {
+      to { opacity:0.4; transform:scale(1.3); }
+    }
+
+    header {
+      text-align:center;
+      padding:60px 0 40px;
+      position:relative;
+      z-index:10;
+    }
+
+    h1 {
+      font-family:'Nosifer', cursive;
+      font-size:clamp(4rem, 12vw, 9rem);
+      color:var(--fire);
+      text-shadow:0 0 30px var(--fire), 0 0 60px #880000, 0 0 120px #440000;
+      letter-spacing:0.15em;
+      animation:glitch 4s infinite, burn 10s infinite alternate;
+    }
+
+    @keyframes glitch {
+      0%,100% { transform:translate(0); }
+      20%  { transform:translate(-3px,3px); }
+      40%  { transform:translate(3px,-3px); }
+      60%  { transform:translate(-2px,2px); }
+    }
+
+    @keyframes burn {
+      to { filter:brightness(1.6) contrast(1.4); }
+    }
+
+    .status { 
+      color:var(--glow); 
+      font-size:1.8rem; 
+      margin:20px 0; 
+      text-shadow:0 0 15px var(--glow); 
+    }
+
+    .warning {
+      background:rgba(30,0,0,0.7);
+      border:2px dashed #770000;
+      color:#ff4444;
+      text-align:center;
+      padding:20px;
+      margin:40px 0;
+      font-size:1.4rem;
+      box-shadow:0 0 30px #330000 inset;
+      animation:pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+      50% { opacity:0.9; }
+    }
+
+    table {
+      width:100%;
+      max-width:1400px;
+      margin:40px auto;
+      border-collapse:collapse;
+      background:#050000;
+      border:3px solid #550000;
+      box-shadow:0 0 60px #220000;
+    }
+
+    th, td {
+      padding:16px;
+      border:1px solid #330000;
+      text-align:left;
+    }
+
+    th {
+      background:#110000;
+      color:#ff8800;
+      font-size:1.1rem;
+    }
+
+    tr:hover {
+      background:#1a0000;
+    }
+
+    .price {
+      color:#ffcc00;
+      font-weight:bold;
+      text-shadow:0 0 10px #ff8800;
+    }
+
+    .btn {
+      background:#220000;
+      color:#ff1a1a;
+      border:2px solid #770000;
+      padding:10px 24px;
+      cursor:pointer;
+      font-weight:bold;
+      transition:0.25s;
+      box-shadow:0 0 15px #440000;
+    }
+
+    .btn:hover {
+      background:#440000;
+      box-shadow:0 0 30px #ff0000;
+      transform:scale(1.05);
+    }
+
+    footer {
+      text-align:center;
+      color:#440000;
+      margin:120px 0 60px;
+      font-size:1.2rem;
+    }
+
+    .overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.96);
+      z-index:9999;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:40px 20px;
+      overflow-y:auto;
+      color:#ff4444;
+    }
+
+    .hidden { display:none !important; }
+
+    .close-btn {
+      position:fixed;
+      top:30px;
+      right:30px;
+      background:#220000;
+      color:#ff1a1a;
+      border:2px solid #880000;
+      padding:12px 28px;
+      cursor:pointer;
+      font-size:1.5rem;
+      box-shadow:0 0 20px #660000;
+    }
+
+    .close-btn:hover { background:#440000; }
+
+    /* Форми */
+    form.market-form, form.post-form {
+      max-width:1100px;
+      margin:60px auto;
+      padding:30px;
+      background:#0a0000;
+      border:2px solid #550000;
+      box-shadow:0 0 40px #220000;
+    }
+
+    input, textarea {
+      width:100%;
+      margin:12px 0;
+      padding:14px;
+      background:#110000;
+      color:#ff4444;
+      border:1px solid #770000;
+      font-family:inherit;
+    }
+
+    button[type="submit"] {
+      width:100%;
+      padding:16px;
+      margin-top:20px;
+      background:#330000;
+      color:#ff1a1a;
+      border:none;
+      font-size:1.3rem;
+      cursor:pointer;
+    }
+
+    button[type="submit"]:hover {
+      background:#550000;
+    }
+
+    #posts .thread {
+      margin:30px 0;
+      padding:20px;
+      background:#110000;
+      border-left:5px solid #880000;
+      box-shadow:0 0 20px #440000;
+    }
+
+    #posts .thread-title {
+      font-size:1.7rem;
+      color:#ffaa00;
+      margin-bottom:12px;
+    }
+
+    #posts .post {
+      margin:12px 0;
+      padding:12px;
+      background:#1a0000;
+      border-left:3px solid #660000;
+    }
+
+    #posts .user {
+      color:#cc8800;
+      font-style:italic;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Падаюча кров -->
+<script>
+  function spawnBlood() {
+    const drop = document.createElement('div');
+    drop.className = 'blood';
+    drop.style.left = Math.random() * 100 + 'vw';
+    drop.style.animationDuration = (Math.random() * 5 + 4) + 's';
+    document.body.appendChild(drop);
+    setTimeout(() => drop.remove(), 12000);
+  }
+  setInterval(spawnBlood, 300);
+
+  // Плаваючі черепи
+  const skulls = ['💀','☠','👹','🔥','🩸','🪦','🕯️'];
+  function spawnSkull() {
+    const skull = document.createElement('div');
+    skull.className = 'skull';
+    skull.textContent = skulls[Math.floor(Math.random() * skulls.length)];
+    skull.style.left = Math.random() * 100 + 'vw';
+    skull.style.top = Math.random() * 100 + 'vh';
+    skull.style.animationDuration = (Math.random() * 25 + 20) + 's';
+    document.body.appendChild(skull);
+    setTimeout(() => skull.remove(), 40000);
+  }
+  setInterval(spawnSkull, 2000);
+</script>
+
+<div id="closed" class="overlay hidden">
+  <div id="closed-msg">
+    █ YOU DIED — GATES SEALED █<br><br>
+    Maintenance 00:00–01:00 Kyiv time<br>
+    Return at 01:00... if you dare
+  </div>
+  <div id="timer" style="font-size:6rem; margin:60px 0;">--:--:--</div>
+</div>
+
+<div id="rules" class="overlay hidden">
+  <button class="close-btn" onclick="hide('rules')">CLOSE [X]</button>
+  <div style="max-width:1100px; background:rgba(20,0,0,0.85); padding:40px; border:3px dashed #660000; box-shadow:0 0 50px #330000;">
+    <h2>LAWS OF THE DAMNED</h2>
+    <div style="font-size:1.8rem; color:#ff4444; margin:20px 0; text-align:center;" class="blink">
+      BREAK THEM AND BURN FOREVER
+    </div>
+    <ul style="list-style:none; padding-left:0; font-size:1.3rem;">
+      <li>☠ NO SCAMMING — your soul is harvested instantly</li>
+      <li>☠ PGP MANDATORY — forget key = eternal void ban</li>
+      <li>☠ ESCROW ONLY — bypass = your coins melt in hellfire</li>
+      <li>☠ NO DOXXING — your bloodline marked for legions</li>
+      <li>☠ NO CP — ninth circle of ice awaits</li>
+      <li>☠ NO TERROR PLANS — Lucifer claims your throne</li>
+      <li>☠ LOW RATING = erased from existence</li>
+      <li>☠ TRUST NO ONE — even your screen watches back</li>
+      <li>☠ TOR ONLY — clearnet = face burned in databases</li>
+      <li>☠ DISPUTES — defy admin = crucified on code</li>
+      <li>☠ NO ADMIN PROBING — swallowed by the Void Maw</li>
+      <li>☠ NO WEAKNESS — fear = prey for lower demons</li>
+      <li>☠ SACRIFICE REQUIRED — enter without tribute = cursed</li>
+      <li>☠ WE SEE EVERY CLICK — your doubts feed us</li>
+      <li>☠ ETERNAL OATH — break it = blood ignites</li>
+      <li>☠ NO ESCAPE — you are already here</li>
+    </ul>
+  </div>
+</div>
+
+<div id="forum" class="overlay hidden">
+  <button class="close-btn" onclick="hide('forum')">CLOSE [X]</button>
+  <div style="max-width:1100px; width:100%; padding:20px;">
+    <h2>FORUM OF THE WRETCHED</h2>
+    <p style="color:#ff6666; text-align:center; margin:20px 0;">
+      Speak into the pit. The shadows remember every word.
+    </p>
+
+    <form class="post-form" id="postForm">
+      <input type="text" id="postUser" placeholder="Your cursed name (optional)" />
+      <input type="text" id="postTitle" placeholder="Thread title — make it bleed" required />
+      <textarea id="postContent" rows="8" placeholder="Scream your message into the void..." required></textarea>
+      <button type="submit">CAST INTO THE ABYSS</button>
+    </form>
+
+    <div id="posts" style="margin-top:50px;"></div>
+
+    <!-- Початкові приклади тредів -->
+    <div class="thread" style="margin:40px 0; padding:25px; background:#110000; border-left:6px solid #880000;">
+      <div class="thread-title">Best mixers 2026 — hide your tracks or burn</div>
+      <div class="post">
+        <div class="user">VoidLurker • Feb 03, 2026</div>
+        CryptoWasher still alive? Or already compromised?
+      </div>
+      <div class="post">
+        <div class="user">AshenTrader • Feb 03, 2026</div>
+        Washed 3 BTC yesterday — clean. Always triple PGP.
+      </div>
+    </div>
+
+    <div class="thread" style="margin:40px 0; padding:25px; background:#110000; border-left:6px solid #880000;">
+      <div class="thread-title">DarkChemist gone — scam or exit?</div>
+      <div class="post">
+        <div class="user">PoisonedFool • Feb 02, 2026</div>
+        Sent 0.5 BTC — vendor offline. Anyone else?
+      </div>
+      <div class="post">
+        <div class="user">ReaperVendor • Feb 02, 2026</div>
+        Use escrow, fool. Or join the list of the vanished.
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <header>
+    <h1>YOU DIED</h1>
+    <div class="status">v6.2 • Mirror #666 • <span style="animation:blink 0.8s infinite;">HELL ACTIVE</span></div>
+  </header>
+
+  <div class="warning">YOUR PRESENCE IS A SACRIFICE — THERE IS NO LEAVING</div>
+
+  <div class="ascii-big">
+     ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
+    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+    ▐░█▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀█░█▀▀▀▀  ▀▀▀▀▀█░█▀▀▀▀ 
+    ▐░▌               ▐░▌          ▐░▌     
+    ▐░█▄▄▄▄▄▄▄▄▄      ▐░▌          ▐░▌     
+    ▐░░░░░░░░░░░▌     ▐░▌          ▐░▌     
+    ▀▀▀▀▀▀▀▀▀▀▀       ▀           ▀      
+  </div>
+
+  <!-- Форма продажу -->
+  <form class="market-form" id="sellForm">
+    <h3>SACRIFICE YOUR GOODS TO THE VOID</h3>
+    <input type="text" name="item" placeholder="Item / Curse / Relic" required />
+    <input type="text" name="cat" placeholder="Category (e.g. Poisons, Entities, Weapons)" required />
+    <input type="text" name="vendor" placeholder="Your Alias / Vendor Name" required />
+    <input type="text" name="price" placeholder="Price (BTC / souls / blood)" required />
+    <input type="text" name="rating" placeholder="Rating (e.g. 4.9 / 666 reviews)" required />
+    <input type="text" name="stock" placeholder="Stock / Availability" required />
+    <input type="text" name="details" placeholder="Details / Warnings / Rituals" required />
+    <button type="submit">OFFER TO HELL</button>
+  </form>
+
+  <table class="market" id="market-table">
+    <thead>
+      <tr>
+        <th>Item / Relic</th>
+        <th>Category</th>
+        <th>Vendor / Summoner</th>
+        <th>Price</th>
+        <th>Rating / Souls</th>
+        <th>Stock</th>
+        <th>Details / Warnings</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="marketBody">
+      <!-- Початкові товари (можна додавати ще) -->
+      <tr>
+        <td>Bound Succubus • Lust Eternal • Obedient</td>
+        <td>Entities / Demons</td>
+        <td class="vendor-name online">Lilith’s Slave Market (online)</td>
+        <td class="price">1.333 BTC</td>
+        <td>4.98 / 13,666 souls</td>
+        <td>Available</td>
+        <td>Soul contract required • No escape clause</td>
+        <td><button class="btn">SUMMON</button></td>
+      </tr>
+      <tr>
+        <td>Plague Vial • Black Death 2.0 • Airborne</td>
+        <td>Poisons / Biological</td>
+        <td class="vendor-name online">Pestilence Chem (online)</td>
+        <td class="price">0.777 BTC</td>
+        <td>4.95 / 8,901 reviews</td>
+        <td>9 left</td>
+        <td>Micro-drop worldwide • Contagious</td>
+        <td><button class="btn">RELEASE</button></td>
+      </tr>
+      <tr>
+        <td>Demonic Familiar Imp • Speaks Dead Tongues</td>
+        <td>Black Magic / Servants</td>
+        <td class="vendor-name online">Abaddon’s Broker (online)</td>
+        <td class="price">0.666 BTC</td>
+        <td>4.94 / 9,999 souls</td>
+        <td>Instant summoning</td>
+        <td>Ritual included • Binds to owner</td>
+        <td><button class="btn">BIND</button></td>
+      </tr>
+      <tr>
+        <td>Cursed Athame • Blood-forged • Hexed edge</td>
+        <td>Ritual Tools / Weapons</td>
+        <td class="vendor-name online">Malphas Forge (online)</td>
+        <td class="price">0.333 BTC</td>
+        <td>4.97 / 4,444 reviews</td>
+        <td>66 in stock</td>
+        <td>Stealth shipping • Wrapped in skin</td>
+        <td><button class="btn">CLAIM</button></td>
+      </tr>
+      <tr>
+        <td>Soul Jar • 1000-year seal • Whispering inside</td>
+        <td>Necromancy / Containers</td>
+        <td class="vendor-name online">Lilith’s Vault (online)</td>
+        <td class="price">0.25 BTC</td>
+        <td>4.88 / 2,666 souls</td>
+        <td>13 left</td>
+        <td>Obsidian box • Handle with dread</td>
+        <td><button class="btn">CAPTURE</button></td>
+      </tr>
+      <tr>
+        <td>Premium Haunted Proxies • 666 IPs • Undetectable</td>
+        <td>Proxies / Shadows</td>
+        <td class="vendor-name online">GhostProxy Legion (online)</td>
+        <td class="price">0.085 BTC</td>
+        <td>4.92 / 13,337 reviews</td>
+        <td>∞ (cursed)</td>
+        <td>Instant • Tracked by none... except us</td>
+        <td><button class="btn">MASK</button></td>
+      </tr>
+      <tr>
+        <td>Fentanyl Powder • Lab-pure • Instant transcendence</td>
+        <td>Poisons / Opioids</td>
+        <td class="vendor-name offline">DarkChemist (offline — missing)</td>
+        <td class="price">---</td>
+        <td>4.71 / 666 reviews</td>
+        <td>Vanished</td>
+        <td>---</td>
+        <td><button class="btn">---</button></td>
+      </tr>
+      <tr>
+        <td>Infernal Bitcoin Tumbler • No logs • Soul cleansing</td>
+        <td>Crypto / Laundry</td>
+        <td class="vendor-name online">Belial Washer (online)</td>
+        <td class="price">2.2% + 0.000666 BTC</td>
+        <td>4.96 / 8,888 reviews</td>
+        <td>Always online</td>
+        <td>Multi-hop • Delay options</td>
+        <td><button class="btn">LAUNDER</button></td>
+      </tr>
+      <tr>
+        <td>RAT + Keylogger + Zero-Day • Undetected</td>
+        <td>Malware / Hacking</td>
+        <td class="vendor-name online">Asmodeus Code (online)</td>
+        <td class="price">0.15 BTC</td>
+        <td>4.89 / 5,555 reviews</td>
+        <td>Digital ∞</td>
+        <td>AV evasion • Tutorials included</td>
+        <td><button class="btn">INFECT</button></td>
+      </tr>
+      <tr>
+        <td>Forged EU Passport • Biometric spoof • Custom</td>
+        <td>Documents / False Life</td>
+        <td class="vendor-name online">Mephisto Forge (online)</td>
+        <td class="price">0.45 BTC</td>
+        <td>4.82 / 7,777 reviews</td>
+        <td>9–13 days</td>
+        <td>Dead-drop worldwide • Database entry</td>
+        <td><button class="btn">STEAL IDENTITY</button></td>
+      </tr>
+      <!-- Додано ще багато товарів для "більше всього" -->
+      <tr><td>Voodoo Doll Kit • Pins + Hair • Curses</td><td>Curses</td><td class="vendor-name online">Baron Samedi (online)</td><td class="price">0.09 BTC</td><td>4.77</td><td>99</td><td>Pins included • Target required</td><td><button class="btn">CURSE</button></td></tr>
+      <tr><td>Exorcism Salt • Blessed • Demon repellent</td><td>Protection</td><td class="vendor-name online">Gabriel Ward (online)</td><td class="price">$33</td><td>4.82</td><td>1kg+</td><td>Circle casting instructions</td><td><button class="btn">PROTECT</button></td></tr>
+      <tr><td>Necronomicon Digital Scan • Forbidden pages</td><td>Books</td><td class="vendor-name online">Cthulhu Press (online)</td><td class="price">0.05 BTC</td><td>4.99</td><td>Digital</td><td>Madness risk high</td><td><button class="btn">READ</button></td></tr>
+      <tr><td>Hellfire Candle • Burns forever • Summons</td><td>Rituals</td><td class="vendor-name online">Lucifer Lights (online)</td><td class="price">$13</td><td>4.76</td><td>666</td><td>Never extinguish</td><td><button class="btn">LIGHT</button></td></tr>
+      <tr><td>Werewolf Serum • Full moon transformation</td><td>Transformations</td><td class="vendor-name online">Lycan Lab (online)</td><td class="price">0.44 BTC</td><td>4.84</td><td>Limited</td><td>Side effects: hunger</td><td><button class="btn">DRINK</button></td></tr>
+      <tr><td>Vampire Blood Vial • Immortality strain</td><td>Immortality</td><td class="vendor-name online">Dracula’s Reserve (online)</td><td class="price">0.66 BTC</td><td>4.93</td><td>13</td><td>Sunlight fatal</td><td><button class="btn">DRINK</button></td></tr>
+      <tr><td>Ouija Board App • Digital summoning</td><td>Summoning</td><td class="vendor-name online">Spirit App (online)</td><td class="price">0.02 BTC</td><td>4.71</td><td>∞</td><td>Never play alone</td><td><button class="btn">CONTACT</button></td></tr>
+      <tr><td>Poltergeist Trap • Industrial strength</td><td>Ghost Hunting</td><td class="vendor-name online">Ecto Containment (online)</td><td class="price">0.33 BTC</td><td>4.88</td><td>33</td><td>Contains class V</td><td><button class="btn">TRAP</button></td></tr>
+      <tr><td>Dragon Egg • Needs fire to hatch</td><td>Mythical</td><td class="vendor-name online">Targaryen Hatcher (online)</td><td class="price">1 BTC</td><td>4.99</td><td>1</td><td>Hatch at own risk</td><td><button class="btn">INCUBATE</button></td></tr>
+      <tr><td>Phoenix Feather • Resurrection use</td><td>Revival</td><td class="vendor-name online">Fawkes Supply (online)</td><td class="price">0.55 BTC</td><td>4.92</td><td>5</td><td>One-time use</td><td><button class="btn">REVIVE</button></td></tr>
+      <!-- ... ще можна додати 50+ рядків за потреби ... -->
+    </tbody>
+  </table>
+
+  <div style="text-align:center; margin:120px 0 180px;">
+    <button class="btn" style="font-size:1.6rem; padding:20px 50px;" onclick="show('rules')">READ THE DAMNED LAWS</button>
+    <button class="btn" style="font-size:1.6rem; padding:20px 50px;" onclick="show('forum')">HEAR THE SCREAMS OF THE FORUM</button>
+  </div>
+
+  <footer>
+    ENTERED OF YOUR OWN FREE WILL • NO ESCAPE • NO REDEMPTION • NO LIGHT
+  </footer>
+</main>
+
+<!-- Звуки -->
+<audio id="scream" preload="auto" src="https://assets.codepen.io/605876/scream-short.mp3"></audio>
+<audio id="laugh" preload="auto" src="https://assets.codepen.io/605876/demon-laugh.mp3"></audio>
+
+<script>
+// =============================================
+// Функції
+// =============================================
+
+// Закриття о 00:00
+const TZ = 3;
+function isClosed() {
+  const h = (new Date().getUTCHours() + TZ) % 24;
+  return h === 0;
+}
+
+function getCountdown() {
+  const now = new Date();
+  let target = new Date(now);
+  target.setUTCHours(22 - (TZ - 3), 0, 0, 0);
+  if (target < now) target.setUTCDate(target.getUTCDate() + 1);
+  const diff = target - now;
+  const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+  const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+  const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function checkTime() {
+  const closed = document.getElementById('closed');
+  const main = document.getElementById('main');
+  const timer = document.getElementById('timer');
+  if (isClosed()) {
+    closed.classList.remove('hidden');
+    main.style.display = 'none';
+    timer.textContent = getCountdown();
+  } else {
+    closed.classList.add('hidden');
+    main.style.display = 'block';
+  }
+}
+setInterval(checkTime, 5000);
+checkTime();
+
+// Показ/приховування
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Звуки при кліках
+document.querySelectorAll('.btn, button[type="submit"]').forEach(el => {
+  el.addEventListener('click', () => {
+    const snd = Math.random() > 0.5 ? 'scream' : 'laugh';
+    const audio = document.getElementById(snd);
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  });
+});
+
+// Додавання посту в форум
+document.getElementById('postForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const user = document.getElementById('postUser').value.trim() || 'Anon';
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+  if (!title || !content) return;
+
+  const posts = document.getElementById('posts');
+  const div = document.createElement('div');
+  div.className = 'thread';
+  div.innerHTML = `
+    <div class="thread-title">${title}</div>
+    <div class="post">
+      <div class="user">${user} • ${new Date().toLocaleString()}</div>
+      <div style="margin-top:10px; white-space:pre-wrap;">${content}</div>
+    </div>
+  `;
+  posts.prepend(div);
+  e.target.reset();
+});
+
+// Додавання товару в таблицю
+document.getElementById('sellForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.item || !data.cat || !data.price) return;
+
+  const tbody = document.getElementById('marketBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${data.item}</td>
+    <td>${data.cat}</td>
+    <td class="vendor-name online">${data.vendor || 'Anon Demon'} (online)</td>
+    <td class="price">${data.price}</td>
+    <td>${data.rating || 'N/A'}</td>
+    <td>${data.stock || 'Available'}</td>
+    <td>${data.details || 'No details'}</td>
+    <td><button class="btn">BUY / SUMMON</button></td>
+  `;
+  tbody.appendChild(tr);
+  form.reset();
+});
+</script>
+
+</body>
+</html>
